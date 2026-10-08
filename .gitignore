@@ -1,0 +1,23 @@
+# Pliki tymczasowe i kopie zapasowe
+*.bak
+*.tmp
+*.log
+*.lock
+*.sha256
+
+# Raporty wygenerowane lokalnie
+raport_stanu.html
+health_report.html
+*.json_out
+
+# Pliki Pythona
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Systemowe
+.DS_Store
+Thumbs.db

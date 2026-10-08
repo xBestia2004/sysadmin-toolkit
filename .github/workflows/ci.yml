@@ -1,0 +1,53 @@
+name: CI - Weryfikacja i Testy Skryptów
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint-and-validate:
+    name: Weryfikacja składni i testy automatyczne
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobranie kodu (Checkout)
+        uses: actions/checkout@v4
+
+      - name: Konfiguracja Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Nadanie uprawnień wykonywalnych
+        run: |
+          chmod +x scripts/*.sh scripts/*.py zarzadzaj.sh automatyzacja_testow.sh
+
+      - name: Weryfikacja składni skryptów Basha
+        run: |
+          echo "Sprawdzanie składni skryptów powłoki..."
+          for file in scripts/*.sh zarzadzaj.sh automatyzacja_testow.sh; do
+            echo "Testowanie: $file"
+            bash -n "$file"
+          done
+
+      - name: Weryfikacja składni skryptów Pythona
+        run: |
+          echo "Kompilacja i sprawdzanie składni Pythona..."
+          for file in scripts/*.py; do
+            echo "Testowanie: $file"
+            python3 -m py_compile "$file"
+          done
+
+      - name: Test uruchomieniowy: 01_system_health_reporter.sh (JSON)
+        run: |
+          ./scripts/01_system_health_reporter.sh --json
+
+      - name: Test uruchomieniowy: 02_backup_rotator.sh (Symulacja dry-run)
+        run: |
+          ./scripts/02_backup_rotator.sh -s scripts -d /tmp/kopie_ci --dry-run
+
+      - name: Test uruchomieniowy: 06_ssl_domain_inspector.py
+        run: |
+          python3 ./scripts/06_ssl_domain_inspector.py github.com google.com --json
